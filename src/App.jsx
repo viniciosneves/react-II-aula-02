@@ -7,6 +7,8 @@ import MensagemSucesso from "./componentes/MensagemSucesso/MensagemSucesso"
 import Botao from "./componentes/Botao/Botao"
 import Rodape from "./componentes/Rodape/Rodape"
 import Captura from "./componentes/Captura/Captura"
+import { useGeolocated } from "react-geolocated";
+import { useState } from "react"
 
 const Container = styled.section`
   width: 390px;
@@ -33,6 +35,27 @@ const Container = styled.section`
 `
 
 function App() {
+  const [fotoCapturada, setFotoCapturada] = useState(null)
+  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+    useGeolocated({
+      positionOptions: {
+        enableHighAccuracy: true,
+      },
+      userDecisionTimeout: 5000,
+    });
+
+  const enviarCadastro = (evento) => {
+    evento.preventDefault()
+    const dados = {
+      foto: fotoCapturada
+    }
+
+    if (isGeolocationEnabled && isGeolocationAvailable) {
+      dados.coordenadas = coords
+    }
+
+    console.log(dados)
+  }
 
   return (
     <>
@@ -44,12 +67,17 @@ function App() {
         <h2>
           Reconhecimento facial
         </h2>
-        <Captura />
+        <Captura aoCapturar={setFotoCapturada}/>
         <MensagemSucesso />
 
-        <Botao $fluido>
+        <form onSubmit={enviarCadastro}>
+          <Botao 
+            $fluido 
+            disabled={!fotoCapturada}
+          >
             Quero abrir minha conta!
-        </Botao>
+          </Botao>
+        </form>
       </Container>
       <Rodape />
     </>
